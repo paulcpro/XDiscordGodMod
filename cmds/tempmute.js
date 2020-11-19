@@ -1,86 +1,72 @@
 const Discord = require("discord.js");
 const config = require("../db/config.json");
 
-module.exports.run = async(bot, message, args) => {
-    if(message.author.bot)
+module.exports.run = async(pClient, pMessage, pArgs) => {
+    if(pMessage.author.bot)
     {
         return;
     }
 
-    if(message.channel.type == "dm")
+    if(pMessage.channel.type == "dm")
     {
         return;
     }
 
     //Define a time in millisecond to mute an user
-    if(message.content.startsWith(config.prefix + "tempmute"))
+    if(pMessage.content.startsWith(config.prefix + "tempmute"))
     {
-        let mention = message.mentions.members.first();
+        let lMention = pMessage.mentions.members.first();
 
-        if(mention == undefined)
+        if(lMention == undefined)
         {
-            message.reply("Utilisateur non existant ou mal écrit");
+            pMessage.reply("Utilisateur non existant ou mal écrit");
         }
 
         else
         {
-            //Split the content of the message in an array
-            args = message.content.split(" ");
-            mention.roles.add("774962034244190229");
+            lMention.roles.add("774962034244190229");
 
-            //If we specific the time to mute in seconds, minutes, hours or days. Seconds by default (s, m, h, d)
-            if(args[3] == "s")
+            //We specific the time to mute in seconds, minutes, hours or days. Seconds by default (s, m, h, d)
+            if(pArgs[2] == "s")
             {
-                message.channel.send("<@" + mention.id + "> a été muté pour " + args[2] + " secondes !");
-                //Function used to unmute the member until a specific time
-                setTimeout(function() {
-                    mention.roles.remove("774962034244190229");
-                    message.channel.send("<@" + mention.id + "> peut reparler."); //Used to mention the member when we send a message
-                }, args[2] * 1000);
-
+                SetTemporaryMute(pMessage, lMention, pArgs, 1000, "s");
             }
 
-            if(args[3] == "m")
+            else if(pArgs[2] == "m")
             {
-                message.channel.send("<@" + mention.id + "> a été muté pour " + args[2] + " minutes !");
-                setTimeout(function() {
-                    mention.roles.remove("774962034244190229");
-                    message.channel.send("<@" + mention.id + "> peut reparler.");
-                }, args[2] * 1000 * 60);
-
+                SetTemporaryMute(pMessage, lMention, pArgs, 1000*60, "m");
             }
 
-            if(args[3] == "h")
+            else if(pArgs[2] == "h")
             {
-                message.channel.send("<@" + mention.id + "> a été muté pour " + args[2] + " heures !");
-                setTimeout(function() {
-                    mention.roles.remove("774962034244190229");
-                    message.channel.send("<@" + mention.id + "> peut reparler.");
-                }, args[2] * 1000 * 60 * 60);
-
+                SetTemporaryMute(pMessage, lMention, pArgs, 1000*60*60, "h");
             }
 
-            if(args[3] == "d")
+            else if(pArgs[2] == "d")
             {
-                message.channel.send("<@" + mention.id + "> a été muté pour " + args[2] + " jours !");
-                setTimeout(function() {
-                    mention.roles.remove("774962034244190229");
-                    message.channel.send("<@" + mention.id + "> peut reparler.");
-                }, args[2] * 1000 * 60 * 60 * 24);
-
+                SetTemporaryMute(pMessage, lMention, pArgs, 1000*60*60*24, "d");
             }
 
             else
             {
-                message.channel.send("<@" + mention.id + "> a été muté pour " + args[2] + " secondes !");
-                setTimeout(function() {
-                    mention.roles.remove("774962034244190229");
-                    message.channel.send("<@" + mention.id + "> peut reparler");
-                }, args[2] * 1000);
-
+                SetTemporaryMute(pMessage, lMention, pArgs, 1000, "s");
             }
             
         }
+
+    }
+
+}
+
+//Used to unmute an user until a precise time
+let SetTemporaryMute = (pMessage, pMention, pArgs, pTime, pTimeUnit) => {
+    if(pArgs[2] == pTimeUnit)
+    {
+        pMessage.channel.send("<@" + pMention.id + "> a été muté pour " + pArgs[1] + " " + pTimeUnit);
+        setTimeout(function() {
+            pMention.roles.remove("774962034244190229");
+            pMessage.channel.send("<@" + pMention.id + "> peut reparler.");
+        }, pArgs[1] * pTime);
 
     }
 
