@@ -1,5 +1,5 @@
 const { MessageEmbed, Message } = require("discord.js");
-const { prefix } = require("../db/config.json");
+const { prefix } = require("../../db/config.json");
 
 module.exports.run = async(bot, message, args) => {
     if(args[0] == prefix + "help")
@@ -24,7 +24,7 @@ module.exports.run = async(bot, message, args) => {
     }
 
     let cmdmember = " \"!help\" \"!serverinfo\" \"!userinfo\" ";
-    let cmdadmin = " \"!kick\" \"!ban\" \"!mute\" \"!tempmute\" \"!unmute\" ";
+    let cmdadmin = " \"!kick\" \"!ban\" \"!mute\" \"!unmute\" \"!tempmute\"  \"!tempban\"  \"!avertissement\" ";
     if(!args[0])
     {
         message.delete();

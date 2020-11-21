@@ -31,45 +31,54 @@ db.connect(function (err) {
     console.log("La connexion a été réussi");
 });
 
-const ReadFile = (pFilePath) => {
-    //Used to retrieve every files from specific repository
-    fs.readdir(pFilePath, (err, files) => {
+//Loading Commands
+const LoadCommands = (dir = "./commands/") => {
+    //We put the dir as arguments to get the files pointed in a subfolder of commands. ex: ./commands/Misc/
+    fs.readdirSync(dir).forEach(dirs => {
+        const commands = fs.readdirSync(`${dir}/${dirs}/`).filter(files => files.endsWith(".js")); //Get the commands file ended by .js
+
+        for(const command of commands)
+        {
+            const commandFileName = require(`${dir}/${dirs}/${command}`); //Récupère le nom de chaque fichier
+            console.log("[COMMANDS HANDLER] " + command + " Loaded");
+            //module.exports.config.name
+            Client.commands.set(commandFileName.config.name, commandFileName); //We make a commands collection with the name of the command (config.name <= commandFileName)
+        }
+
+    });
+
+}
+
+//Loading Events
+const LoadEvents = ("./events/", () => {
+    fs.readdir( (err, dirs) => {
         if(err)
         {
-            console.log(err);
+            throw err;
         }
-    
-        let jsfile = files.filter(f => f.split(".").pop() == "js"); //Filtred to get only .js files
+
+        const events = dirs.filter(files => files.endsWith(".js")); //make an array of every .js files
+
         if(jsfile.length <= 0)
         {
             console.log("[HANDLER]: Aucune commande trouvée");
         }
-    
-        //Retrieve name and of .js files from specific folder
-        jsfile.forEach((f, i) => {
-            let props = require(pFilePath + f);
-            console.log("[HANDLER]: " + f + " ok ! ");
-            Client.commands.set(props.config.name, props);
-        })
-    
-    
-    })
 
-}
+        for(const event of events)
+        {
+            const evt = require(`${dir}/${dirs}/${event}`); //require the actual file.js
+            const eventName = event.split(".")[0];  //Retrieve each time the name of the file
+            //firstArg: get the name of the event file ; secondArg: get parameter of the event
+            Client.on(eventName, evt.bind(null, Client));   //In the bind, if the event don't have any parameter we set the bind null by default
+            console.log(`Evenement chargé : ${eventName}`);
+        }
 
-//Read the content of a folder and the code contained by every files
-ReadFile("./cmds/");
+    });
 
-//Loading Events
-// fs.readdir("./events/", (err, files) => {
-//     if (err) return console.error(err);
-//     files.forEach((file) => {
-//       const event = require("./events/" + file);
-//       let eventName = file.split(".")[0];
-//       Client.on(eventName, event.bind(null, Client));
-//       console.log("Loading Event: " + eventName)
-//     });
-// });
+});
+
+LoadCommands();
+// LoadEvents();
 
 Client.on("ready", async() => {
     console.log(Client.user.username + ": Online");
@@ -83,6 +92,9 @@ Client.on("ready", async() => {
 });
 
 Client.on("message", async message => {
+    //Array of french FWord to check if the user say insult and get warnings for it
+    // let lFWord = ["pute", "salope", "enculé", "connard"];
+
     //Check if the message come from the bot, if yes, the bot don't send a message to himself
     if(message.author.Client)
     {
@@ -94,6 +106,25 @@ Client.on("message", async message => {
     {
         return;
     }
+
+    // ========= Warnings Insult ===========
+    // let lMessageContent = message.content.split(" ");
+    // for(let lWord of lMessageContent)
+    // {
+    //     if(lFWord.includes(lWord))
+    //     {
+    //         let lCallWarnings = "avertissement";
+    //         let lMemberWarnings = message.author.username;
+    //         let lWarningsCall = Client.commands.get(lCallWarnings);
+    //         if(lWarningsCall)
+    //         {
+    //             lWarningsCall.run(Client, message, args, lMemberWarnings);
+    //         }
+
+    //         message.channel.send("Merci de parler correctement, vous avez gagné un avertissement vers le ban !");
+    //     }
+
+    // }
 
     //Reading of the user table
     db.query("SELECT * FROM user WHERE user = " + message.author.id, async(err, req) => {
@@ -130,7 +161,8 @@ Client.on("message", async message => {
     let messageArray = message.content.split(" ");
     let command = messageArray[0];
     let args = messageArray.slice(1);
-    let commandeFile = Client.commands.get(command.slice(prefix.length)); //Retrieve the typed commands without the prefix
+    //Retrieve the typed commands without the prefix
+    let commandeFile = Client.commands.get(command.slice(prefix.length)); //Client.commands.get Retrieve every commandFileName from our collection with the name of the commands
     // let eventFile = Client.commands.get();
     if(commandeFile)
     {

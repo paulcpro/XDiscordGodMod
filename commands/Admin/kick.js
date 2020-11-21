@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const config = require("../db/config.json");
+const config = require("../../db/config.json");
 
 module.exports.run = async(bot, message, args) => {
     if(message.author.bot)
@@ -47,6 +47,8 @@ module.exports.run = async(bot, message, args) => {
 
 }
 
+//We set module.exports.config because in the index.js we retrieve the file by using command.config.name => here config is the same than here
+//The name used will be "kick"
 module.exports.config = {
     name: "kick"
 }

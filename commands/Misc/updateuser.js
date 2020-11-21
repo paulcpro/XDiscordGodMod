@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const config = require("../db/config.json");
+const config = require("../../db/config.json");
 const mysql = require("mysql");
 
 const db = mysql.createConnection({

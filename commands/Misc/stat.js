@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const config = require("../db/config.json");
+const config = require("../../db/config.json");
 
 module.exports.run = async(bot, message, args) => {
     if(message.author.bot)

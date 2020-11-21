@@ -2,8 +2,15 @@ const Discord = require("discord.js");
 const config = require("../db/config.json");
 const Client = new Discord.Client();
 
-module.exports.run = async(member) => {
-    console.log("bot ready");
+module.exports.run = async(pClient) => {
+    console.log(Client.user.username + ": Online");
+
+    let statuses = [ "Un site", "Un stream", "DictatriX" ]; //Activity status
+
+    setInterval(function() {
+        let status = statuses[Math.floor(Math.random() * statuses.length)]; //Random number to change randomly the activity
+        Client.user.setActivity(status, {type: "WATCHING"})    //Used to change the BOT Acitvity every 5 seconds
+    }, 5000)
 
     let commandFile = Client.commands.get(command.slice(config.prefix.length)); //Récupère une partie d'un tableau et une copie
     if(commandFile) {
@@ -19,6 +26,7 @@ module.exports.run = async(member) => {
 
 }
 
-module.exports.config = {
-    name: "ready"
+//The command will be config.name
+module.exports.config = {   //Config here
+    name: "ready"   //Name here; so we will call them from the index.js command.config.name and its will run it
 }

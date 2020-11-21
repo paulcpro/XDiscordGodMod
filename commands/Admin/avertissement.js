@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const config = require("../db/config.json");
+const config = require("../../db/config.json");
 const mysql = require("mysql");
 
 //Connection to the database
@@ -10,7 +10,7 @@ const db = mysql.createConnection({
     database: "dictatrix"
 });
 
-module.exports.run = async(bot, message, args) => {
+module.exports.run = async(bot, message, args, pMemberWarnings) => {
     if(message.author.bot)
     {
         return;
@@ -55,6 +55,25 @@ module.exports.run = async(bot, message, args) => {
                         message.channel.send("Tu possèdes maintenant " + lNumberWarning + " avertissements !");
                     }
 
+                }
+                
+                else if(pMemberWarnings != undefined)
+                {
+                    let lNumberWarning = req[0].avertissement + 1;
+                    //Add a warnings to an user
+                    db.query("UPDATE user SET avertissement = '" + lNumberWarning + "' WHERE user = " + pMemberWarnings.id)
+
+                    //If the user has 3 or more than 3 warnings he get banned
+                    if(lNumberWarning >= 3)
+                    {
+                        pMemberWarnings.ban();
+                        message.channel.send(pMemberWarnings.displayName + " a été bannit du serveur.", {files: ["./img/vnr.gif"]} );
+                    }
+
+                    else
+                    {
+                        message.channel.send("Tu possèdes maintenant " + lNumberWarning + " avertissements !");
+                    }
                 }
                 
                 else if(args[0] == undefined)
